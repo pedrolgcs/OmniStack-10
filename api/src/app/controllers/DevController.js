@@ -1,0 +1,41 @@
+import api from '../../services/api';
+import Dev from '../models/Dev';
+
+class DevController {
+  async store(req, res) {
+    try {
+      const { github_username, techs, latitude, longitude } = req.body;
+
+      let dev = await Dev.findOne({ github_username });
+
+      if (!dev) {
+        const { data } = await api.get(`${github_username}`);
+
+        const name = data.name || data.login;
+        const { bio, avatar_url } = data;
+
+        const techsArray = techs.split(',').map(tech => tech.trim());
+
+        const location = {
+          type: 'Point',
+          coordinates: [longitude, latitude],
+        };
+
+        dev = await Dev.create({
+          name,
+          github_username,
+          bio,
+          avatar_url,
+          techs: techsArray,
+          location,
+        });
+      }
+
+      return res.status(201).json(dev);
+    } catch (error) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+}
+
+export default new DevController();

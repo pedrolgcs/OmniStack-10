@@ -1,32 +1,32 @@
 module.exports = {
   env: {
     es6: true,
-    node: true
+    node: true,
   },
-  extends: ["airbnb-base", "prettier"],
-  plugins: ["prettier", '"eslint-plugin-import-helpers"'],
+  extends: ['airbnb-base', 'prettier'],
+  plugins: ['prettier', 'eslint-plugin-import-helpers'],
   globals: {
-    Atomics: "readonly",
-    SharedArrayBuffer: "readonly"
+    Atomics: 'readonly',
+    SharedArrayBuffer: 'readonly',
   },
   parserOptions: {
     ecmaVersion: 2018,
-    sourceType: "module"
+    sourceType: 'module',
   },
   rules: {
-    "prettier/prettier": "error",
-    "class-methods-use-this": "off",
-    "no-param-reassign": "off",
-    camelcase: "off",
-    "no-unused-vars": ["error", { argsIgnorePattern: "next" }],
-    "import-helpers/order-imports": [
-      "warn",
+    'prettier/prettier': 'error',
+    'class-methods-use-this': 'off',
+    'no-param-reassign': 'off',
+    camelcase: 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
+    'import-helpers/order-imports': [
+      'warn',
       {
         // example configuration
-        newlinesBetween: "always",
-        groups: ["module", ["parent", "sibling", "index"]],
-        alphabetize: { order: "asc", ignoreCase: true }
-      }
-    ]
-  }
+        newlinesBetween: 'always',
+        groups: ['module', ['parent', 'sibling', 'index']],
+        alphabetize: { order: 'asc', ignoreCase: true },
+      },
+    ],
+  },
 };
