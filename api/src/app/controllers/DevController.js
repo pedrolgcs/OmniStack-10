@@ -1,7 +1,17 @@
 import api from '../../services/api';
+import parseStringAsArray from '../../utils/parseStringAsArray';
 import Dev from '../models/Dev';
 
 class DevController {
+  async index(req, res) {
+    try {
+      const devs = await Dev.find();
+      return res.status(200).json(devs);
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+
   async store(req, res) {
     try {
       const { github_username, techs, latitude, longitude } = req.body;
@@ -14,7 +24,7 @@ class DevController {
         const name = data.name || data.login;
         const { bio, avatar_url } = data;
 
-        const techsArray = techs.split(',').map(tech => tech.trim());
+        const techsArray = parseStringAsArray(techs);
 
         const location = {
           type: 'Point',

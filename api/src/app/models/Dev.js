@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-import PointSchema from '../../utils/PointSchema';
+import PointSchema from '../utils/PointSchema';
 
 const DevSchema = new mongoose.Schema(
   {
