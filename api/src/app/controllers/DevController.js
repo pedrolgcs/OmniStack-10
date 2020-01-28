@@ -5,7 +5,7 @@ import Dev from '../models/Dev';
 class DevController {
   async index(req, res) {
     try {
-      const devs = await Dev.find();
+      const devs = await Dev.find().sort('-name');
       return res.status(200).json(devs);
     } catch (error) {
       return res.status(500).json({ error: error.message });
