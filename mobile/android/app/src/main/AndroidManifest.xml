@@ -2,6 +2,7 @@
   package="com.mobile">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
       android:name=".MainApplication"
@@ -25,6 +26,5 @@
       <meta-data
         android:name="com.google.android.geo.API_KEY"
         android:value="AIzaSyD9jweRcoIklp-i0ma76ea_kCd-30Y0xlA"/>
-
     </application>
 </manifest>
