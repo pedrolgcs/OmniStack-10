@@ -63,6 +63,16 @@ export const SearchButton = styled.TouchableOpacity`
   margin-left: 15px;
 `;
 
+export const HomeButton = styled.TouchableOpacity`
+  width: 50px;
+  height: 50px;
+  background-color: #8e4dff;
+  border-radius: 25px;
+  justify-content: center;
+  align-items: center;
+  margin-right: 15px;
+`;
+
 export const TextButton = styled.Text``;
 
 export const LoadingContainer = styled.SafeAreaView`

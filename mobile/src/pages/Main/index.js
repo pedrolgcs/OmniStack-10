@@ -1,10 +1,11 @@
 /* eslint-disable react/prop-types */
 import Geolocation from '@react-native-community/geolocation';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Marker, Callout } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 import loadingEffect from '../../assets/loading.json';
+import api from '../../services/api';
 import {
   Map,
   Avatar,
@@ -15,6 +16,7 @@ import {
   SearchForm,
   SearchInput,
   SearchButton,
+  HomeButton,
   TextButton,
   ErrorMessage,
   LoadingContainer,
@@ -22,20 +24,21 @@ import {
 } from './styles';
 
 export default function Main({ navigation }) {
+  const [devs, setDevs] = useState([]);
+  const [techs, setTechs] = useState('');
   const [currentRegion, setcurrentRegion] = useState(null);
   const [error, setError] = useState('');
+
+  console.tron.log('devs', devs);
 
   useEffect(() => {
     async function loadInitialPosition() {
       await Geolocation.getCurrentPosition(
         pos => {
-          console.tron.log(pos);
           setTimeout(() => {
             setcurrentRegion({
-              // latitude: pos.coords.latitude,
-              // longitude: pos.coords.longitude,
-              latitude: -6.4300316,
-              longitude: -36.6405084,
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             });
@@ -46,6 +49,40 @@ export default function Main({ navigation }) {
     }
     loadInitialPosition();
   }, []);
+
+  const HomePosition = useCallback(async () => {
+    await Geolocation.getCurrentPosition(
+      pos => {
+        setcurrentRegion({
+          latitude: pos.coords.latitude,
+          longitude: pos.coords.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      },
+      err => setError(err.message)
+    );
+  });
+
+  async function loadDevs() {
+    const { latitude, longitude } = currentRegion;
+    try {
+      const response = await api.get('/search', {
+        params: {
+          latitude,
+          longitude,
+          techs,
+        },
+      });
+      setDevs(response.data);
+    } catch (err) {
+      console.tron.log(err);
+    }
+  }
+
+  function handleRegionChange(region) {
+    setcurrentRegion(region);
+  }
 
   if (!currentRegion) {
     return (
@@ -58,37 +95,57 @@ export default function Main({ navigation }) {
   return (
     <>
       {error ? <ErrorMessage>{error}</ErrorMessage> : null}
-      <Map initialRegion={currentRegion}>
-        <Marker coordinate={{ latitude: -6.431759, longitude: -36.6420957 }}>
-          <Avatar
-            source={{
-              uri:
-                'https://avatars3.githubusercontent.com/u/11464809?s=460&v=4',
-            }}
-          />
-          <Callout
-            onPress={() => {
-              navigation.navigate('Profile', { github_username: 'pedrolgcs' });
+      <Map
+        onRegionChangeComplete={handleRegionChange}
+        initialRegion={currentRegion}
+        region={currentRegion}
+      >
+        {devs.map(dev => (
+          <Marker
+            key={dev._id}
+            coordinate={{
+              latitude: dev.location.coordinates[1],
+              longitude: dev.location.coordinates[0],
             }}
           >
-            <DevProfile>
-              <DevName>Pedro H.</DevName>
-              <DevBio>Love Javascript</DevBio>
-              <DevTechs>Node, React</DevTechs>
-            </DevProfile>
-          </Callout>
-        </Marker>
+            <Avatar
+              source={{
+                uri: dev.avatar_url,
+              }}
+            />
+            <Callout
+              onPress={() => {
+                navigation.navigate('Profile', {
+                  github_username: dev.github_username,
+                });
+              }}
+            >
+              <DevProfile>
+                <DevName>{dev.name}</DevName>
+                {dev.bio ? <DevBio>{dev.bio}</DevBio> : null}
+                <DevTechs>{dev.techs.join(', ')}</DevTechs>
+              </DevProfile>
+            </Callout>
+          </Marker>
+        ))}
       </Map>
       <SearchForm>
+        <HomeButton onPress={HomePosition}>
+          <TextButton>
+            <Icon name="map-pin" size={20} color="#fff" />
+          </TextButton>
+        </HomeButton>
         <SearchInput
           placeholder="Find devs for techs..."
           autoCapitalize="words"
           autoCorrect={false}
           style={{ elevation: 2 }}
+          value={techs}
+          onChangeText={setTechs}
         />
-        <SearchButton onPress={() => {}}>
+        <SearchButton onPress={loadDevs}>
           <TextButton>
-            <Icon name="location-arrow" size={20} color="#fff" />
+            <Icon name="street-view" size={20} color="#fff" />
           </TextButton>
         </SearchButton>
       </SearchForm>
