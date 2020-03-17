@@ -1,8 +1,10 @@
 import 'dotenv/config';
 import cors from 'cors';
 import express from 'express';
+import http from 'http';
 import morgan from 'morgan';
 
+import { setupWebsocket } from './services/socket';
 import routes from './routes';
 
 // database initialize
@@ -10,20 +12,22 @@ import './database';
 
 class App {
   constructor() {
-    this.server = express();
+    this.app = express();
+    this.server = http.createServer(this.app);
 
+    setupWebsocket(this.server);
     this.middlewares();
     this.routes();
   }
 
   middlewares() {
-    this.server.use(express.json());
-    this.server.use(cors());
-    this.server.use(morgan('tiny'));
+    this.app.use(express.json());
+    this.app.use(cors());
+    this.app.use(morgan('tiny'));
   }
 
   routes() {
-    this.server.use(routes);
+    this.app.use(routes);
   }
 }
 

@@ -1,6 +1,7 @@
 import api from '../../services/api';
 import parseStringAsArray from '../../utils/parseStringAsArray';
 import Dev from '../models/Dev';
+import { findConnections, sendMEssage } from '../../services/socket';
 
 class DevController {
   async index(req, res) {
@@ -39,6 +40,14 @@ class DevController {
           techs: techsArray,
           location,
         });
+
+        // Filter connections inside 10km circle
+        const sendSocketMessageTo = findConnections(
+          { latitude, longitude },
+          techsArray
+        );
+
+        sendMEssage(sendSocketMessageTo, 'new-dev', dev);
       }
 
       return res.status(201).json(dev);

@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 import loadingEffect from '../../assets/loading.json';
 import api from '../../services/api';
+import { connect, disconnect, subscribeToNewDevs } from '../../services/socket';
 import {
   Map,
   Avatar,
@@ -50,6 +51,10 @@ export default function Main({ navigation }) {
     loadInitialPosition();
   }, []);
 
+  useEffect(() => {
+    subscribeToNewDevs(dev => setDevs([...devs, dev]));
+  }, [devs]);
+
   const HomePosition = useCallback(async () => {
     await Geolocation.getCurrentPosition(
       pos => {
@@ -63,6 +68,14 @@ export default function Main({ navigation }) {
       err => setError(err.message)
     );
   });
+
+  function setupWebsocket() {
+    disconnect();
+
+    const { latitude, longitude } = currentRegion;
+
+    connect(latitude, longitude, techs);
+  }
 
   async function loadDevs() {
     const { latitude, longitude } = currentRegion;
@@ -78,6 +91,7 @@ export default function Main({ navigation }) {
     } catch (err) {
       console.tron.log(err);
     }
+    setupWebsocket();
   }
 
   function handleRegionChange(region) {
